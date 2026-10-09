@@ -1,0 +1,14 @@
+node_modules/
+**/node_modules/
+**/build/
+**/.gradle/
+local.properties
+*.jks
+*password*
+*.b64
+.vercel/
+.grok/
+.env
+.env.*
+*.apk
+*.aab

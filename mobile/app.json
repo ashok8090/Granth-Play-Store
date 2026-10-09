@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "ग्रंथ प्रबंधन",
+    "slug": "granth-prabandhan",
+    "version": "1.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "granth",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "android": {
+      "package": "com.wnm.granthprabandhan",
+      "versionCode": 16,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "predictiveBackGestureEnabled": true
+    },
+    "plugins": [
+      "expo-sqlite",
+      "expo-sharing",
+      "expo-asset",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "ग्रंथ प्रबंधन डाउनलोड की हुई तस्वीरें आपकी गैलरी में सहेजता है।",
+          "savePhotosPermission": "तस्वीर फोन की गैलरी में सहेजने दें।",
+          "isAccessMediaLocationEnabled": false,
+          "granularPermissions": ["photo"]
+        }
+      ]
+    ],
+    "extra": {
+      "resourceVersion": "1.0.1"
+    }
+  }
+}

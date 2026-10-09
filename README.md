@@ -7,11 +7,12 @@
 - versionCode: `16` (Play 1.0.0 was 15)
 - Signing certificate SHA-256: `68:C7:CF:34:EC:F0:FA:DA:21:05:C2:65:D2:59:54:96:BA:A1:BB:C9:7C:3F:DD:BC:35:D2:1D:BE:8D:0E:DD:DE`
 - Same key as the 1.0.0 upload (alias satlok)
+- Phone ABIs only: `armeabi-v7a`, `arm64-v8a`
 
-Files:
+Release files:
 
-- `granth-prabandhan-1.0.1.apk`
-- `granth-prabandhan-1.0.1.aab` — upload this on Play Console
+- `granth-prabandhan-1.0.1.apk` about 45 MB
+- `granth-prabandhan-1.0.1.aab` about 33 MB — upload this on Play Console
 
 Share links stay on `https://granth.grok.me/open`.
 
