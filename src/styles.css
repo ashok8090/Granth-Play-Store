@@ -5,6 +5,7 @@
 @import "@fontsource/noto-sans-devanagari/devanagari-400.css";
 @import "@fontsource/noto-sans-devanagari/devanagari-500.css";
 @import "@fontsource/noto-sans-devanagari/devanagari-600.css";
+@import "@fontsource/noto-sans-devanagari/devanagari-700.css";
 @import "@fontsource/yatra-one/devanagari-400.css";
 @import "@fontsource/yatra-one/latin-400.css";
 @import "@fontsource/tiro-devanagari-sanskrit/devanagari-400.css";
@@ -71,10 +72,23 @@
 .app-root {
   min-height: 100vh;
   position: relative;
+  isolation: isolate;
+  background: var(--color-cream);
+}
+
+/* The warm saffron/maroon glow sits on its own fixed, composited layer.
+   Painted as part of .app-root it was re-rendered over the whole (10 000px+)
+   page every time a list grew by one batch. */
+.app-root::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  transform: translateZ(0);
   background:
     radial-gradient(ellipse at 10% 8%, color-mix(in srgb, var(--color-saffron) 12%, transparent), transparent 46%),
-    radial-gradient(ellipse at 92% 90%, color-mix(in srgb, var(--color-maroon) 8%, transparent), transparent 42%),
-    var(--color-cream);
+    radial-gradient(ellipse at 92% 90%, color-mix(in srgb, var(--color-maroon) 8%, transparent), transparent 42%);
 }
 
 .mast {
@@ -485,7 +499,8 @@ nav {
 main {
   max-width: 1180px;
   margin: 0 auto;
-  padding: 16px 16px 72px;
+  /* Room for the floating "ऊपर" button / toast and the gesture bar, so the last card is never covered. */
+  padding: 16px 16px calc(96px + var(--apk-bottom, 0px) + env(safe-area-inset-bottom, 0px));
 }
 
 .scroll-rail {
@@ -577,6 +592,7 @@ main {
   box-shadow: 0 16px 40px rgba(74, 44, 10, 0.28);
   max-height: min(86vh, 720px);
   overflow: auto;
+  overscroll-behavior: contain;
   animation: sheet-rise 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -707,6 +723,7 @@ main {
   width: min(440px, 92vw);
   max-height: min(86vh, 720px);
   overflow: auto;
+  overscroll-behavior: contain;
   z-index: 91;
 }
 
@@ -784,6 +801,7 @@ main {
   width: min(440px, 92vw);
   max-height: min(86vh, 720px);
   overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .pdf-deck-top,
@@ -842,8 +860,9 @@ main {
   position: sticky;
   top: 0;
   z-index: 24;
-  background: color-mix(in srgb, var(--color-cream) 90%, white);
-  backdrop-filter: blur(12px);
+  /* Solid paper instead of backdrop blur: a blurred sticky bar is re-rendered on
+     every scroll frame and was the main cause of jank on low-end Android. */
+  background: color-mix(in srgb, var(--color-cream) 94%, white);
   padding-top: 8px;
   padding-bottom: 8px;
 }
@@ -1319,6 +1338,7 @@ main {
 }
 
 .img-skeleton {
+  display: block;
   min-height: 120px;
   border-radius: 8px;
   background: linear-gradient(90deg, var(--color-cream-dark), var(--color-cream), var(--color-cream-dark));
@@ -1468,7 +1488,8 @@ main {
   height: min(78vh, 920px);
   position: relative;
   overflow: hidden;
-  touch-action: none;
+  /* Vertical swipes scroll the lightbox; pinch is handled in JS. */
+  touch-action: pan-y;
   display: grid;
   place-items: center;
   flex: none;
@@ -1541,7 +1562,12 @@ main {
 }
 
 .lightbox-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(16px + var(--apk-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -1556,9 +1582,12 @@ main {
   object-fit: contain;
   border-radius: 12px;
   background: var(--color-paper);
-  touch-action: none;
   user-select: none;
   pointer-events: none;
+}
+
+.zoom-stage.zoomed {
+  touch-action: none;
 }
 
 .scroll-sentinel {
@@ -1700,382 +1729,6 @@ button.logo-icon {
   text-align: left;
 }
 
-.adm {
-  min-height: 100vh;
-  background: var(--color-cream);
-  color: var(--color-text);
-  padding-bottom: 84px;
-}
-
-.adm.night {
-  --color-cream: #1c130e;
-  --color-cream-dark: #2a1c14;
-  --color-paper: #2c1d14;
-  --color-text: #fdf6e3;
-  --color-muted: #e2c7a2;
-  --color-brown: #f6e7cb;
-}
-
-.adm-top,
-.adm-nav {
-  background: var(--color-maroon);
-  color: var(--color-gold-light);
-}
-
-.adm-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 16px 16px 12px;
-}
-
-.adm-top h1,
-.adm-login h1,
-.adm-stack h2 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  line-height: 1.15;
-}
-
-.adm-top h1,
-.adm-login h1 {
-  color: var(--color-gold-light);
-  font-size: 28px;
-}
-
-.adm-kicker {
-  color: var(--color-gold);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.adm-top-actions,
-.adm-actions,
-.adm-chips,
-.adm-head,
-.adm-line,
-.adm-split {
-  display: flex;
-  gap: 8px;
-}
-
-.adm-head,
-.adm-line {
-  align-items: center;
-  justify-content: space-between;
-}
-
-.adm-icon {
-  width: 44px;
-  height: 44px;
-  border: 1px solid color-mix(in srgb, var(--color-gold) 50%, transparent);
-  border-radius: 12px;
-  background: transparent;
-  color: var(--color-gold-light);
-  display: grid;
-  place-items: center;
-}
-
-.adm-icon svg,
-.adm-nav svg,
-.adm-more svg {
-  width: 18px;
-  height: 18px;
-}
-
-.adm-who,
-.adm-main,
-.adm-login {
-  padding: 12px 16px 108px;
-}
-
-.adm-who,
-.adm-muted,
-.adm-note {
-  color: var(--color-muted);
-  line-height: 1.45;
-}
-
-.adm-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.adm-stack h2 {
-  color: var(--color-maroon);
-  font-size: 28px;
-}
-
-.adm.night .adm-stack h2,
-.adm.night .adm-card h3 {
-  color: var(--color-gold-light);
-}
-
-.adm-card,
-.adm-metric,
-.adm-login {
-  background: var(--color-paper);
-  border: 1px solid color-mix(in srgb, var(--color-gold) 55%, var(--color-cream-dark));
-  border-radius: 16px;
-}
-
-.adm-card,
-.adm-metric {
-  padding: 14px;
-}
-
-.adm-card h3,
-.adm-preview h3 {
-  color: var(--color-maroon);
-  font-size: 18px;
-  line-height: 1.35;
-}
-
-.adm-metrics {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.adm-metric {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.adm-metric strong {
-  color: var(--color-maroon);
-  font-size: 26px;
-  line-height: 1.1;
-}
-
-.adm-nav {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: auto;
-  bottom: 0;
-  height: auto;
-  z-index: 35;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  border-top: 1px solid var(--color-gold);
-}
-
-.adm-nav button,
-.adm-more button,
-.adm-actions button,
-.adm-chips button,
-.adm-quiet,
-.adm-primary {
-  min-height: 44px;
-}
-
-.adm-nav button {
-  border: 0;
-  background: transparent;
-  color: color-mix(in srgb, var(--color-cream) 78%, transparent);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.adm-nav button.on,
-.adm-chips button.on {
-  color: var(--color-gold-light);
-}
-
-.adm-chips {
-  flex-wrap: wrap;
-}
-
-.adm-chips button,
-.adm-actions button,
-.adm-quiet {
-  border: 1px solid color-mix(in srgb, var(--color-gold) 65%, var(--color-cream-dark));
-  background: var(--color-paper);
-  color: var(--color-maroon);
-  border-radius: 999px;
-  padding: 8px 12px;
-  font-weight: 700;
-}
-
-.adm-chips button.on {
-  background: var(--color-maroon);
-  color: var(--color-gold-light);
-}
-
-.adm-primary {
-  border: 0;
-  border-radius: 12px;
-  background: var(--color-maroon);
-  color: var(--color-gold-light);
-  padding: 10px 14px;
-  font-weight: 800;
-}
-
-.adm-primary:disabled,
-.adm-actions button:disabled {
-  opacity: 0.55;
-}
-
-.adm-search,
-.adm-field input,
-.adm-field textarea,
-.adm-field select,
-.adm-split input {
-  width: 100%;
-  border: 1px solid color-mix(in srgb, var(--color-gold) 70%, var(--color-cream-dark));
-  background: var(--color-paper);
-  color: var(--color-text);
-  border-radius: 12px;
-  padding: 12px;
-  font: inherit;
-}
-
-.adm-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  color: var(--color-brown);
-  font-weight: 700;
-}
-
-.adm-sheet {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  background: color-mix(in srgb, var(--color-brown) 42%, transparent);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.adm-sheet-card {
-  width: min(720px, 100%);
-  max-height: 92vh;
-  overflow: auto;
-  background: var(--color-cream);
-  color: var(--color-text);
-  border-radius: 18px 18px 0 0;
-  padding: 14px 14px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.adm-sheet-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.adm-sheet-bar h3 {
-  color: var(--color-maroon);
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 400;
-}
-
-.adm-login {
-  max-width: 440px;
-  margin: 28px auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 18px;
-}
-
-.adm-login h1 {
-  color: var(--color-maroon);
-}
-
-.adm-banner {
-  background: color-mix(in srgb, var(--color-saffron) 18%, var(--color-paper));
-  color: var(--color-brown);
-  border-radius: 12px;
-  padding: 10px 12px;
-}
-
-.adm-ok {
-  color: var(--color-maroon);
-  font-weight: 700;
-}
-
-.adm-pill {
-  border-radius: 999px;
-  background: var(--color-cream-dark);
-  color: var(--color-maroon);
-  padding: 4px 8px;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.adm-chart {
-  width: 100%;
-  height: 220px;
-}
-
-.adm-split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: start;
-}
-
-.adm-more {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.adm-more button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid color-mix(in srgb, var(--color-gold) 65%, var(--color-cream-dark));
-  background: var(--color-paper);
-  color: var(--color-maroon);
-  border-radius: 12px;
-  padding: 12px;
-  font-weight: 800;
-}
-
-.adm-wait {
-  padding: 48px 16px;
-  text-align: center;
-  color: var(--color-muted);
-}
-
-.adm-check {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-}
-
-.adm-preview img,
-.adm-preview .shot-img {
-  width: 100%;
-  border-radius: 12px;
-}
-
-.adm-user-feedback {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.adm-actions {
-  flex-wrap: wrap;
-}
 
 .screen-in {
   animation: none;
@@ -2106,6 +1759,7 @@ button.logo-icon {
 .settings-sheet {
   max-height: min(86vh, 720px);
   overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .set-block {
@@ -2133,6 +1787,10 @@ html.theme-dark {
 }
 
 html.theme-dark body,
+html.theme-dark .app-root::before {
+  display: none;
+}
+
 html.theme-dark .app-root {
   background: #1c140f;
   color: #f6e7cf;
@@ -2209,4 +1867,92 @@ html.ui-combo .dash-card {
   background: none;
   padding: 8px 0;
   color: var(--color-muted);
+}
+
+/* ---- review fixes ---------------------------------------------------- */
+
+html {
+  /* No rubber-band "pull" past the ends and no pull-to-refresh inside the app. */
+  overscroll-behavior-y: none;
+}
+
+.toast-idle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.toast {
+  bottom: calc(24px + var(--apk-bottom, 0px));
+}
+
+.to-top {
+  margin-bottom: var(--apk-bottom, 0px);
+}
+
+/* Off-screen praman cards skip rendering work until they come near the viewport. */
+.praman-grid > .praman-card,
+.gallery-grid > .gallery-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 520px;
+}
+
+.shot-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.shot.thumb .shot-open {
+  height: 100%;
+}
+
+.shot-missing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px dashed var(--color-gold);
+  border-radius: 10px;
+  background: var(--color-cream-dark);
+  color: var(--color-maroon);
+  text-align: center;
+  font-weight: 600;
+}
+
+.shot.thumb.shot-missing {
+  min-height: 0;
+  padding: 2px;
+  gap: 2px;
+  font-size: 9px;
+}
+
+.shot.thumb.shot-missing .pill {
+  padding: 2px 4px;
+  font-size: 9px;
+  min-height: 0;
+}
+
+.pdf-warn {
+  color: var(--color-maroon);
+  font-weight: 700;
+}
+
+.card:focus-visible,
+.gallery-card:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--color-saffron);
+  outline-offset: 2px;
 }
